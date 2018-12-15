@@ -2,9 +2,22 @@
   "name": "robula-plus",
   "version": "1.0.0",
   "description": "Robula+ is an algorithm to generate robust XPath-based locators, that are likely to work correctly with new releases of a web application. Robula+ reduces the locators' fragility on average by 90% w.r.t. absolute locators and by 63% w.r.t. Selenium IDE locators.",
-  "main": "index.js",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest --config jestconfig.json",
+    "build": "tsc",
+    "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
+    "lint": "tslint -p tsconfig.json",
+    "prepare": "npm run build",
+    "prepublishOnly": "npm test && npm run lint",
+    "preversion": "npm run lint",
+    "version": "npm run format && git add -A src",
+    "postversion": "git push && git push --tags"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cyluxx/robula-plus.git"
   },
   "keywords": [
     "web",
@@ -22,5 +35,21 @@
     "selector"
   ],
   "author": "Maurizio Leotta, Andrea Stocco, Filippo Ricca, Paolo Tonella",
-  "license": "ISC"
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/cyluxx/robula-plus/issues"
+  },
+  "homepage": "https://github.com/cyluxx/robula-plus#robula",
+  "files": [
+    "lib/**/*"
+  ],
+  "devDependencies": {
+    "@types/jest": "^23.3.10",
+    "jest": "^23.6.0",
+    "prettier": "^1.15.3",
+    "ts-jest": "^23.10.5",
+    "tslint": "^5.11.0",
+    "tslint-config-prettier": "^1.17.0",
+    "typescript": "^3.2.2"
+  }
 }
