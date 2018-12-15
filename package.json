@@ -1,0 +1,26 @@
+{
+  "name": "robula-plus",
+  "version": "1.0.0",
+  "description": "Robula+ is an algorithm to generate robust XPath-based locators, that are likely to work correctly with new releases of a web application. Robula+ reduces the locators' fragility on average by 90% w.r.t. absolute locators and by 63% w.r.t. Selenium IDE locators.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "web",
+    "testing",
+    "test",
+    "cases",
+    "fragility",
+    "robust",
+    "XPath",
+    "locator",
+    "maintenance",
+    "effort",
+    "reduction",
+    "DOM",
+    "selector"
+  ],
+  "author": "Maurizio Leotta, Andrea Stocco, Filippo Ricca, Paolo Tonella",
+  "license": "ISC"
+}
