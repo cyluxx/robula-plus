@@ -18,24 +18,83 @@ export const evaluate = (abs: XPathExpression, d: Document): Element => {
 export class RobulaPlus {
     priorityAttributes: string[] = ["id"];
 
-    public transfConvertStar(xPath: string, tag: string): string[] {
+    public transfConvertStar(xPath: string, element: Element): string[] {
         let output: string[] = [];
         if (xPath.startsWith("//*")) {
-            output.push("//" + tag + xPath.substring(3));
+            output.push("//" + element.tagName.toLowerCase() + xPath.substring(3));
         }
         return output;
     };
 
-    public transfAddAttribute(xPath: string, element: Element): string[]{
+    public transfAddId(xPath: string, element: Element): string[] {
         let output: string[] = [];
-        if(xPath.charAt(xPath.length - 1)){
-            for(let attribute of element.attributes){
-                let splitXPath: string[] = xPath.split('/');
-                splitXPath.splice(3, 0, `[@${attribute.name}='${attribute.value}']`);
-                output.push(splitXPath.join());
+        if (element.id && !this.headHasAnyPredicates(xPath)) {
+            output.push(this.addPredicateToHead(xPath, `[@id='${element.id}']`));
+        }
+        return output;
+    }
+
+    public transfAddText(xPath: string, element: Element): string[] {
+        let output: string[] = [];
+        if (element.textContent && !this.headHasPositionPredicate(xPath) && !this.headHasTextPredicate(xPath)) {
+            output.push(this.addPredicateToHead(xPath, `[contains(text(),'${element.textContent}')]`));
+        }
+        return output;
+    }
+
+    public transfAddAttribute(xPath: string, element: Element): string[] {
+        let output: string[] = [];
+        if (!this.headHasAnyPredicates(xPath)) {
+            for (let attribute of element.attributes) {
+                output.push(this.addPredicateToHead(xPath, `[@${attribute.name}='${attribute.value}']`));
             }
         }
         return output;
+    }
+
+    public transfAddAttributeSet(xPath: string, element: Element): string[] {
+        let output: string[] = [];
+        if (element.attributes.length > 0 && !this.headHasAnyPredicates(xPath)) {
+            let predicate: string = `[@${element.attributes[0].name}='${element.attributes[0].value}'`;
+            for (let i: number = 1; i < element.attributes.length; i++) {
+                predicate += ` and @${element.attributes[i].name}='${element.attributes[i].value}'`;
+            }
+            predicate += ']';
+            output.push(this.addPredicateToHead(xPath, predicate));
+        }
+        return output;
+    }
+
+    public transfAddPosistion(xPath: string, element: Element): string[] {
+        let output: string[] = [];
+        if (!this.headHasPositionPredicate(xPath)) {
+
+        }
+        return output;
+    }
+
+    public transfAddLevel(xPath: string, element: Element): string[] {
+        let output: string[] = [];
+        
+        return output;
+    }
+
+    private headHasAnyPredicates(xPath: string): boolean {
+        return xPath.split('/')[2].includes('[');
+    }
+
+    private headHasPositionPredicate(xPath: string): boolean {
+        return xPath.split('/')[2].includes('position()');
+    }
+
+    private headHasTextPredicate(xPath: string): boolean {
+        return xPath.split('/')[2].includes('text()');
+    }
+
+    private addPredicateToHead(xPath: string, predicate: string): string {
+        let splitXPath: string[] = xPath.split('/');
+        splitXPath[2] += predicate;
+        return splitXPath.join('/');
     }
 }
 
