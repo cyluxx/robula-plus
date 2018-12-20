@@ -10,7 +10,7 @@ test('transfAddText: xPath head has text predicate', () => {
 });
 
 test('transfAddText: xPath head has position predicate', () => {
-    let xPath = '//div[position()=1]';
+    let xPath: string = '//div[position()=1]';
     let element: Element = document.createElement('div');
     element.innerHTML = '<span></span>';
     expect(robulaPlus.transfAddText(xPath, element)).toEqual([]);

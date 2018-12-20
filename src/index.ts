@@ -65,17 +65,31 @@ export class RobulaPlus {
         return output;
     }
 
-    public transfAddPosistion(xPath: string, element: Element): string[] {
+    public transfAddPosition(xPath: string, element: Element): string[] {
         let output: string[] = [];
         if (!this.headHasPositionPredicate(xPath)) {
-
+            let position: number = 0;
+            if (xPath.startsWith("//*")) {
+                position = Array.from(element.parentNode!.children).indexOf(element);
+            }
+            for (let child of element.parentNode!.children) {
+                if (element === child) {
+                    break;
+                }
+                if (element.tagName === child.tagName) {
+                    position++;
+                }
+            }
+            output.push(this.addPredicateToHead(xPath, `[${position}]`));
         }
         return output;
     }
 
     public transfAddLevel(xPath: string, element: Element): string[] {
         let output: string[] = [];
-        
+        if (this.getXPathLength(xPath) < this.getAncestorCount(element) + 1) {
+            output.push('//*' + xPath.substr(1));
+        }
         return output;
     }
 
@@ -84,7 +98,9 @@ export class RobulaPlus {
     }
 
     private headHasPositionPredicate(xPath: string): boolean {
-        return xPath.split('/')[2].includes('position()');
+        let splitXPath: string[] = xPath.split('/');
+        let regExp: RegExp = new RegExp('[[0-9]]');
+        return splitXPath[2].includes('position()') || splitXPath[2].includes('last()') || regExp.test(splitXPath[2]);
     }
 
     private headHasTextPredicate(xPath: string): boolean {
@@ -95,6 +111,26 @@ export class RobulaPlus {
         let splitXPath: string[] = xPath.split('/');
         splitXPath[2] += predicate;
         return splitXPath.join('/');
+    }
+
+    private getAncestorCount(element: Element): number {
+        let count: number = 0;
+        while (element.parentElement) {
+            element = element.parentElement;
+            count++;
+        }
+        return count;
+    }
+
+    private getXPathLength(xPath: string): number {
+        let splitXPath: string[] = xPath.split('/');
+        let length: number = 0;
+        for (let piece of splitXPath) {
+            if (piece) {
+                length++;
+            }
+        }
+        return length;
     }
 }
 
