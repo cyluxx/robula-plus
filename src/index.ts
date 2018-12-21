@@ -1,22 +1,60 @@
-/** 
-* Returns a list of optimized robust XPath locators.
-* 
-* @param document - The document to analyse, that contains the desired element.
-* @param absoluteXPath - A (non-optimized) XPath, describing the desired element.
-* @param options - (optional) algorithm options
-*
-* @returns A list of robust XPath locators.
+/**
+* Maurizio Leotta, Andrea Stocco, Filippo Ricca, Paolo Tonella. ROBULA+:
+* An Algorithm for Generating Robust XPath Locators for Web Testing. Journal
+* of Software: Evolution and Process (JSEP), Volume 28, Issue 3, pp.177–204.
+* John Wiley & Sons, 2016. 
+* https://doi.org/10.1002/smr.1771
 */
-export const robulaPlus = (document: Document, absoluteXPath: string, options?: AlgorithmOptions): void => {
-
-};
-
-export const evaluate = (abs: XPathExpression, d: Document): Element => {
-    return new Element();
-};
 
 export class RobulaPlus {
-    priorityAttributes: string[] = ["id"];
+
+    /** 
+    * Returns a optimized robust XPath locator string.
+    * 
+    * @param absoluteXPath - An XPathElement containing the absolute XPath of the desired element.
+    * @param document - The document to analyse, that contains the desired element.
+    * @param options - (optional) algorithm options
+    *
+    * @returns - A robust xPath locator string.
+    */
+    public getRobustXPath(element: Element, document: Document, options?: RobulaPlusOptions): string {
+        let xPathList: string[] = ['//*'];
+        while (true) {
+            let xPath: string = xPathList.shift()!;
+            let temp: string[] = [];
+            temp.concat(this.transfConvertStar(xPath, element));
+            temp.concat(this.transfAddId(xPath, element));
+            temp.concat(this.transfAddText(xPath, element));
+            temp.concat(this.transfAddAttribute(xPath, element));
+            temp.concat(this.transfAddAttributeSet(xPath, element));
+            temp.concat(this.transfAddPosition(xPath, element));
+            temp.concat(this.transfAddLevel(xPath, element));
+            for (let x of temp) {
+                if(this.uniquelyLocate(x, element, document)){
+                    return x;
+                }
+                xPathList.push(x);
+            }
+        }
+    }
+
+    /** 
+    * Returns an element in the given document located by the given xPath locator.
+    * 
+    * @param xPath - A xPath string, pointing to the desired element.
+    * @param document - The document to analyse, that contains the desired element.
+    *
+    * @returns - The first maching Element located.
+    */
+    public getElementByXPath(xPath: string, document: Document): Element {
+        return document.evaluate(xPath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue as Element;
+    }
+
+    public uniquelyLocate(xPath: string, element: Element, document: Document): boolean {
+        let iterator: XPathResult = document.evaluate(xPath, document, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null);
+        let thisNode: Element = iterator.iterateNext() as Element;
+        return thisNode === element && !iterator.iterateNext();
+    }
 
     public transfConvertStar(xPath: string, element: Element): string[] {
         let output: string[] = [];
@@ -72,12 +110,14 @@ export class RobulaPlus {
             if (xPath.startsWith("//*")) {
                 position = Array.from(element.parentNode!.children).indexOf(element);
             }
-            for (let child of element.parentNode!.children) {
-                if (element === child) {
-                    break;
-                }
-                if (element.tagName === child.tagName) {
-                    position++;
+            else {
+                for (let child of element.parentNode!.children) {
+                    if (element === child) {
+                        break;
+                    }
+                    if (element.tagName === child.tagName) {
+                        position++;
+                    }
                 }
             }
             output.push(this.addPredicateToHead(xPath, `[${position}]`));
@@ -134,10 +174,6 @@ export class RobulaPlus {
     }
 }
 
-export const uniquelyLocate = (x: XPathExpression, e: Element, d: Document): boolean => {
-    return false;
-};
-
-class AlgorithmOptions {
+export class RobulaPlusOptions {
 
 }
