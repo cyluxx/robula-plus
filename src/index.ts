@@ -84,7 +84,9 @@ export class RobulaPlus {
     public transfAddId(xPath: XPath, element: Element): XPath[] {
         let output: XPath[] = [];
         if (element.id && !xPath.headHasAnyPredicates()) {
-            output.push(new XPath(xPath.addPredicateToHead(`[@id='${element.id}']`)));
+            let newXPath: XPath = new XPath(xPath.getValue());
+            newXPath.addPredicateToHead(`[@id='${element.id}']`)
+            output.push(newXPath);
         }
         return output;
     }
@@ -92,7 +94,9 @@ export class RobulaPlus {
     public transfAddText(xPath: XPath, element: Element): XPath[] {
         let output: XPath[] = [];
         if (element.textContent && !xPath.headHasPositionPredicate() && !xPath.headHasTextPredicate()) {
-            output.push(new XPath(xPath.addPredicateToHead(`[contains(text(),'${element.textContent}')]`)));
+            let newXPath: XPath = new XPath(xPath.getValue());
+            newXPath.addPredicateToHead(`[contains(text(),'${element.textContent}')]`)
+            output.push(newXPath);
         }
         return output;
     }
@@ -101,7 +105,9 @@ export class RobulaPlus {
         let output: XPath[] = [];
         if (!xPath.headHasAnyPredicates()) {
             for (let attribute of element.attributes) {
-                output.push(new XPath(xPath.addPredicateToHead(`[@${attribute.name}='${attribute.value}']`)));
+                let newXPath: XPath = new XPath(xPath.getValue());
+                newXPath.addPredicateToHead(`[@${attribute.name}='${attribute.value}']`)
+                output.push(newXPath);
             }
         }
         return output;
@@ -115,7 +121,9 @@ export class RobulaPlus {
                 predicate += ` and @${element.attributes[i].name}='${element.attributes[i].value}'`;
             }
             predicate += ']';
-            output.push(new XPath(xPath.addPredicateToHead(predicate)));
+            let newXPath: XPath = new XPath(xPath.getValue());
+            newXPath.addPredicateToHead(predicate);
+            output.push(newXPath);
         }
         return output;
     }
@@ -137,7 +145,9 @@ export class RobulaPlus {
                     }
                 }
             }
-            output.push(new XPath(xPath.addPredicateToHead(`[${position}]`)));
+            let newXPath: XPath = new XPath(xPath.getValue());
+            newXPath.addPredicateToHead(`[${position}]`);
+            output.push(newXPath);
         }
         return output;
     }
@@ -149,6 +159,14 @@ export class RobulaPlus {
         }
         return output;
     }
+
+    private getAncestor(element: Element, index: number): Element {
+        let output: Element = element;
+        for(let i: number = 0; i < index; i++){
+            output = output.parentElement as Element;
+        }
+        return output;
+    } 
 
     private getAncestorCount(element: Element): number {
         let count: number = 0;
@@ -193,10 +211,10 @@ export class XPath {
         return this.value.split('/')[2].includes('text()');
     }
     
-    public addPredicateToHead(predicate: string): string {
+    public addPredicateToHead(predicate: string): void {
         let splitXPath: string[] = this.value.split('/');
         splitXPath[2] += predicate;
-        return splitXPath.join('/');
+        this.value = splitXPath.join('/');
     }
     
     public getLength(): number {
