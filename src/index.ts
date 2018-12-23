@@ -11,11 +11,11 @@ export class RobulaPlus {
     /** 
     * Returns a optimized robust XPath locator string.
     * 
-    * @param absoluteXPath - An XPathElement containing the absolute XPath of the desired element.
+    * @param element - The desired element.
     * @param document - The document to analyse, that contains the desired element.
-    * @param options - (optional) algorithm options
+    * @param options - (optional) algorithm options.
     *
-    * @returns - A robust xPath locator string.
+    * @returns - A robust xPath locator string, describing the desired element.
     */
     public getRobustXPath(element: Element, document: Document, options?: RobulaPlusOptions): string {
         let xPathList: string[] = ['//*'];
@@ -41,7 +41,7 @@ export class RobulaPlus {
     /** 
     * Returns an element in the given document located by the given xPath locator.
     * 
-    * @param xPath - A xPath string, pointing to the desired element.
+    * @param xPath - A xPath string, describing the desired element.
     * @param document - The document to analyse, that contains the desired element.
     *
     * @returns - The first maching Element located.
@@ -50,6 +50,15 @@ export class RobulaPlus {
         return document.evaluate(xPath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue as Element;
     }
 
+    /** 
+    * Returns, wheater xPath describes only the given element.
+    * 
+    * @param xPath - A xPath string, describing the desired element.
+    * @param element - The desired element.
+    * @param document - The document to analyse, that contains the desired element.
+    *
+    * @returns - True, if the xPath describes only the desired element.
+    */
     public uniquelyLocate(xPath: string, element: Element, document: Document): boolean {
         let iterator: XPathResult = document.evaluate(xPath, document, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null);
         let thisNode: Element = iterator.iterateNext() as Element;
