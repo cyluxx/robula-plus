@@ -20,5 +20,5 @@ test('transfAddId: Element div has id', () => {
     let element: Element = document.createElement('div');
     element.innerHTML = '<span></span>';
     element.setAttribute('id', 'foo');
-    expect(robulaPlus.transfAddId(xPath, element)).toEqual(["//div[@id='foo']/span"]);
+    expect(robulaPlus.transfAddId(xPath, element)).toEqual([{value: "//div[@id='foo']/span"}]);
 });

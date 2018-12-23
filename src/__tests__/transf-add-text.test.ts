@@ -20,5 +20,5 @@ test('transfAddText: Element has text', () => {
     let xPath: XPath = new XPath('//div');
     let element: Element = document.createElement('div');
     element.textContent = 'foo';
-    expect(robulaPlus.transfAddText(xPath, element)).toEqual(["//div[contains(text(),'foo')]"]);
+    expect(robulaPlus.transfAddText(xPath, element)).toEqual([{value: "//div[contains(text(),'foo')]"}]);
 });

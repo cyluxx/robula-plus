@@ -21,7 +21,7 @@ test('transfAddAttribute: Element has 1 Attribute and appendix', () => {
     let element: Element = document.createElement('div');
     element.innerHTML = '<span></span>';
     element.setAttribute('class', 'foo');
-    expect(robulaPlus.transfAddAttribute(xPath, element)).toEqual(["//div[@class='foo']/span"]);
+    expect(robulaPlus.transfAddAttribute(xPath, element)).toEqual([{value: "//div[@class='foo']/span"}]);
 });
 
 test('transfAddAttribute: Element has 2 Attributes and appendix', () => {
@@ -30,7 +30,7 @@ test('transfAddAttribute: Element has 2 Attributes and appendix', () => {
     element.innerHTML = '<span></span>';
     element.setAttribute('class', 'foo');
     element.setAttribute('id', 'bar');
-    expect(robulaPlus.transfAddAttribute(xPath, element)).toEqual(["//div[@class='foo']/span", "//div[@id='bar']/span"]);
+    expect(robulaPlus.transfAddAttribute(xPath, element)).toEqual([{value: "//div[@class='foo']/span"}, {value: "//div[@id='bar']/span"}]);
 });
 
 test('transfAddAttribute: Element has no Attributes', () => {

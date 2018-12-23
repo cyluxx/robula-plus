@@ -19,5 +19,5 @@ test('transfAddLevel: xPath.length (N) is smaller than Ancestors.length (L)', ()
     let xPath: XPath = new XPath('//div/div');
     let parentParentElement: Element = document.createElement('div');
     parentParentElement.innerHTML = '<div><div></div></div>';
-    expect(robulaPlus.transfAddLevel(xPath, parentParentElement.firstElementChild!.firstElementChild!)).toEqual(['//*/div/div']);
+    expect(robulaPlus.transfAddLevel(xPath, parentParentElement.firstElementChild!.firstElementChild!)).toEqual([{value: '//*/div/div'}]);
 });

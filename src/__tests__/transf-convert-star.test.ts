@@ -17,11 +17,11 @@ test('transfConvertStar: xPath does not start with "//*"', () => {
 test('transfConvertStar: xPath starts with "//*"', () => {
     let xPath: XPath = new XPath('//*');
     let element: Element = document.createElement('div');
-    expect(robulaPlus.transfConvertStar(xPath, element)).toEqual(['//div']);
+    expect(robulaPlus.transfConvertStar(xPath, element)).toEqual([{value: '//div'}]);
 });
 
 test('transfConvertStar: xPath starts with "//*" and has appendix', () => {
     let xPath: XPath = new XPath('//*/foo');
     let element: Element = document.createElement('div');
-    expect(robulaPlus.transfConvertStar(xPath, element)).toEqual(['//div/foo']);
+    expect(robulaPlus.transfConvertStar(xPath, element)).toEqual([{value: '//div/foo'}]);
 });
