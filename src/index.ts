@@ -8,20 +8,28 @@
 
 export class RobulaPlus {
 
+    /**
+     * Main class, containing the Algorithm.
+     * 
+     * @param options - (optional) algorithm options.
+     */
+    constructor(options?: RobulaPlusOptions){
+
+    }
+
     /** 
     * Returns a optimized robust XPath locator string.
     * 
     * @param element - The desired element.
     * @param document - The document to analyse, that contains the desired element.
-    * @param options - (optional) algorithm options.
     *
     * @returns - A robust xPath locator string, describing the desired element.
     */
-    public getRobustXPath(element: Element, document: Document, options?: RobulaPlusOptions): string {
-        let xPathList: string[] = ['//*'];
+    public getRobustXPath(element: Element, document: Document): string {
+        let xPathList: XPath[] = [new XPath('//*')];
         while (true) {
-            let xPath: string = xPathList.shift()!;
-            let temp: string[] = [];
+            let xPath: XPath = xPathList.shift()!;
+            let temp: XPath[] = [];
             temp.concat(this.transfConvertStar(xPath, element));
             temp.concat(this.transfAddId(xPath, element));
             temp.concat(this.transfAddText(xPath, element));
@@ -30,8 +38,8 @@ export class RobulaPlus {
             temp.concat(this.transfAddPosition(xPath, element));
             temp.concat(this.transfAddLevel(xPath, element));
             for (let x of temp) {
-                if(this.uniquelyLocate(x, element, document)){
-                    return x;
+                if(this.uniquelyLocate(x.getValue(), element, document)){
+                    return x.getValue();
                 }
                 xPathList.push(x);
             }
@@ -51,7 +59,7 @@ export class RobulaPlus {
     }
 
     /** 
-    * Returns, wheater xPath describes only the given element.
+    * Returns, wheater an xPath describes only the given element.
     * 
     * @param xPath - A xPath string, describing the desired element.
     * @param element - The desired element.
@@ -65,56 +73,56 @@ export class RobulaPlus {
         return thisNode === element && !iterator.iterateNext();
     }
 
-    public transfConvertStar(xPath: string, element: Element): string[] {
-        let output: string[] = [];
+    public transfConvertStar(xPath: XPath, element: Element): XPath[] {
+        let output: XPath[] = [];
         if (xPath.startsWith("//*")) {
-            output.push("//" + element.tagName.toLowerCase() + xPath.substring(3));
+            output.push(new XPath ("//" + element.tagName.toLowerCase() + xPath.substring(3)));
         }
         return output;
     };
 
-    public transfAddId(xPath: string, element: Element): string[] {
-        let output: string[] = [];
-        if (element.id && !this.headHasAnyPredicates(xPath)) {
-            output.push(this.addPredicateToHead(xPath, `[@id='${element.id}']`));
+    public transfAddId(xPath: XPath, element: Element): XPath[] {
+        let output: XPath[] = [];
+        if (element.id && !xPath.headHasAnyPredicates()) {
+            output.push(new XPath(xPath.addPredicateToHead(`[@id='${element.id}']`)));
         }
         return output;
     }
 
-    public transfAddText(xPath: string, element: Element): string[] {
-        let output: string[] = [];
-        if (element.textContent && !this.headHasPositionPredicate(xPath) && !this.headHasTextPredicate(xPath)) {
-            output.push(this.addPredicateToHead(xPath, `[contains(text(),'${element.textContent}')]`));
+    public transfAddText(xPath: XPath, element: Element): XPath[] {
+        let output: XPath[] = [];
+        if (element.textContent && !xPath.headHasPositionPredicate() && !xPath.headHasTextPredicate()) {
+            output.push(new XPath(xPath.addPredicateToHead(`[contains(text(),'${element.textContent}')]`)));
         }
         return output;
     }
 
-    public transfAddAttribute(xPath: string, element: Element): string[] {
-        let output: string[] = [];
-        if (!this.headHasAnyPredicates(xPath)) {
+    public transfAddAttribute(xPath: XPath, element: Element): XPath[] {
+        let output: XPath[] = [];
+        if (!xPath.headHasAnyPredicates()) {
             for (let attribute of element.attributes) {
-                output.push(this.addPredicateToHead(xPath, `[@${attribute.name}='${attribute.value}']`));
+                output.push(new XPath(xPath.addPredicateToHead(`[@${attribute.name}='${attribute.value}']`)));
             }
         }
         return output;
     }
 
-    public transfAddAttributeSet(xPath: string, element: Element): string[] {
-        let output: string[] = [];
-        if (element.attributes.length > 0 && !this.headHasAnyPredicates(xPath)) {
+    public transfAddAttributeSet(xPath: XPath, element: Element): XPath[] {
+        let output: XPath[] = [];
+        if (element.attributes.length > 0 && !xPath.headHasAnyPredicates()) {
             let predicate: string = `[@${element.attributes[0].name}='${element.attributes[0].value}'`;
             for (let i: number = 1; i < element.attributes.length; i++) {
                 predicate += ` and @${element.attributes[i].name}='${element.attributes[i].value}'`;
             }
             predicate += ']';
-            output.push(this.addPredicateToHead(xPath, predicate));
+            output.push(new XPath(xPath.addPredicateToHead(predicate)));
         }
         return output;
     }
 
-    public transfAddPosition(xPath: string, element: Element): string[] {
-        let output: string[] = [];
-        if (!this.headHasPositionPredicate(xPath)) {
+    public transfAddPosition(xPath: XPath, element: Element): XPath[] {
+        let output: XPath[] = [];
+        if (!xPath.headHasPositionPredicate()) {
             let position: number = 0;
             if (xPath.startsWith("//*")) {
                 position = Array.from(element.parentNode!.children).indexOf(element);
@@ -129,37 +137,17 @@ export class RobulaPlus {
                     }
                 }
             }
-            output.push(this.addPredicateToHead(xPath, `[${position}]`));
+            output.push(new XPath(xPath.addPredicateToHead(`[${position}]`)));
         }
         return output;
     }
 
-    public transfAddLevel(xPath: string, element: Element): string[] {
-        let output: string[] = [];
-        if (this.getXPathLength(xPath) < this.getAncestorCount(element) + 1) {
-            output.push('//*' + xPath.substr(1));
+    public transfAddLevel(xPath: XPath, element: Element): XPath[] {
+        let output: XPath[] = [];
+        if (xPath.getLength() < this.getAncestorCount(element) + 1) {
+            output.push(new XPath('//*' + xPath.substring(1)));
         }
         return output;
-    }
-
-    private headHasAnyPredicates(xPath: string): boolean {
-        return xPath.split('/')[2].includes('[');
-    }
-
-    private headHasPositionPredicate(xPath: string): boolean {
-        let splitXPath: string[] = xPath.split('/');
-        let regExp: RegExp = new RegExp('[[0-9]]');
-        return splitXPath[2].includes('position()') || splitXPath[2].includes('last()') || regExp.test(splitXPath[2]);
-    }
-
-    private headHasTextPredicate(xPath: string): boolean {
-        return xPath.split('/')[2].includes('text()');
-    }
-
-    private addPredicateToHead(xPath: string, predicate: string): string {
-        let splitXPath: string[] = xPath.split('/');
-        splitXPath[2] += predicate;
-        return splitXPath.join('/');
     }
 
     private getAncestorCount(element: Element): number {
@@ -170,9 +158,49 @@ export class RobulaPlus {
         }
         return count;
     }
+}
 
-    private getXPathLength(xPath: string): number {
-        let splitXPath: string[] = xPath.split('/');
+export class XPath {
+    private value: string;
+    
+    constructor(value: string){
+        this.value = value;
+    }
+
+    public getValue(): string {
+        return this.value;
+    }
+
+    public startsWith(string: string): boolean {
+        return this.value.startsWith(string);
+    }
+
+    public substring(number: number): string {
+        return this.value.substring(number);
+    }
+
+    public headHasAnyPredicates(): boolean {
+        return this.value.split('/')[2].includes('[');
+    }
+    
+    public headHasPositionPredicate(): boolean {
+        let splitXPath: string[] = this.value.split('/');
+        let regExp: RegExp = new RegExp('[[0-9]]');
+        return splitXPath[2].includes('position()') || splitXPath[2].includes('last()') || regExp.test(splitXPath[2]);
+    }
+    
+    public headHasTextPredicate(): boolean {
+        return this.value.split('/')[2].includes('text()');
+    }
+    
+    public addPredicateToHead(predicate: string): string {
+        let splitXPath: string[] = this.value.split('/');
+        splitXPath[2] += predicate;
+        return splitXPath.join('/');
+    }
+    
+    public getLength(): number {
+        let splitXPath: string[] = this.value.split('/');
         let length: number = 0;
         for (let piece of splitXPath) {
             if (piece) {

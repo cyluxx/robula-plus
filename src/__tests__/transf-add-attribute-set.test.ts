@@ -1,15 +1,15 @@
-import { RobulaPlus } from '../index';
+import { RobulaPlus, XPath } from '../index';
 
 const robulaPlus: RobulaPlus = new RobulaPlus();
 
 test('transfAddAttributeSet: xPath head has already a predicate', () => {
-    let xPath: string = '//div[bar]';
+    let xPath: XPath = new XPath('//div[bar]');
     let element: Element = document.createElement('div');
     expect(robulaPlus.transfAddAttributeSet(xPath, element)).toEqual([]);
 });
 
 test('transfAddAttributeSet: Element has 2 attributes and appendix, xPath head has already a predicate', () => {
-    let xPath = '//div[bar]/span';
+    let xPath: XPath = new XPath('//div[bar]/span');
     let element: Element = document.createElement('div');
     element.setAttribute('class', 'foo');
     element.setAttribute('id', 'bar');
@@ -17,7 +17,7 @@ test('transfAddAttributeSet: Element has 2 attributes and appendix, xPath head h
 });
 
 test('transfAddAttributeSet: Element has 1 Attribute and appendix', () => {
-    let xPath: string = '//div/span';
+    let xPath: XPath = new XPath('//div/span');
     let element: Element = document.createElement('div');
     element.innerHTML = '<span></span>';
     element.setAttribute('class', 'foo');
@@ -25,7 +25,7 @@ test('transfAddAttributeSet: Element has 1 Attribute and appendix', () => {
 });
 
 test('transfAddAttributeSet: Element has 2 Attributes and appendix', () => {
-    let xPath: string = '//div/span';
+    let xPath: XPath = new XPath('//div/span');
     let element: Element = document.createElement('div');
     element.innerHTML = '<span></span>';
     element.setAttribute('class', 'foo');
@@ -34,7 +34,7 @@ test('transfAddAttributeSet: Element has 2 Attributes and appendix', () => {
 });
 
 test('transfAddAttributeSet: Element has no Attributes', () => {
-    let xPath: string = '//div';
+    let xPath: XPath = new XPath('//div');
     let element: Element = document.createElement('div');
     expect(robulaPlus.transfAddAttributeSet(xPath, element)).toEqual([]);
 });

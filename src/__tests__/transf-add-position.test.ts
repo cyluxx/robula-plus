@@ -1,9 +1,9 @@
-import { RobulaPlus } from '../index';
+import { RobulaPlus, XPath } from '../index';
 
 const robulaPlus: RobulaPlus = new RobulaPlus();
 
 test('transfAddPosistion: xPath head has position predicate', () => {
-    let xPath: string = '//span[42]';
+    let xPath: XPath = new XPath('//span[42]');
     let parentElement: Element = document.createElement('div');
     parentElement.innerHTML = '<span></span><span></span>';
     let element: Element = parentElement.firstElementChild!;
@@ -11,7 +11,7 @@ test('transfAddPosistion: xPath head has position predicate', () => {
 });
 
 test('transfAddPosistion: Element has no siblings', () => {
-    let xPath: string = '//span';
+    let xPath: XPath = new XPath('//span');
     let parentElement: Element = document.createElement('div');
     parentElement.innerHTML = '<span></span>';
     let element: Element = parentElement.firstElementChild!;
@@ -19,7 +19,7 @@ test('transfAddPosistion: Element has no siblings', () => {
 });
 
 test('transfAddPosistion: Element has only siblings with different tagNames. Element is at last position', () => {
-    let xPath: string = '//span';
+    let xPath: XPath = new XPath('//span');
     let parentElement: Element = document.createElement('div');
     parentElement.innerHTML = '<a></a><span></span>';
     let element: Element = parentElement.lastElementChild!;
@@ -27,7 +27,7 @@ test('transfAddPosistion: Element has only siblings with different tagNames. Ele
 });
 
 test('transfAddPosistion: Element has only siblings with different tagNames. Element is at last position. xPath contains *', () => {
-    let xPath: string = '//*';
+    let xPath: XPath = new XPath('//*');
     let parentElement: Element = document.createElement('div');
     parentElement.innerHTML = '<a></a><span></span>';
     let element: Element = parentElement.lastElementChild!;
@@ -35,7 +35,7 @@ test('transfAddPosistion: Element has only siblings with different tagNames. Ele
 });
 
 test('transfAddPosistion: Element is at position 0', () => {
-    let xPath: string = '//span';
+    let xPath: XPath = new XPath('//span');
     let parentElement: Element = document.createElement('div');
     parentElement.innerHTML = '<span></span><span></span>';
     let element: Element = parentElement.firstElementChild!;
@@ -43,7 +43,7 @@ test('transfAddPosistion: Element is at position 0', () => {
 });
 
 test('transfAddPosistion: Element is at last position', () => {
-    let xPath: string = '//span';
+    let xPath: XPath = new XPath('//span');
     let parentElement: Element = document.createElement('div');
     parentElement.innerHTML = '<span></span><span></span>';
     let element: Element = parentElement.lastElementChild!;
