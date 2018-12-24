@@ -75,17 +75,19 @@ export class RobulaPlus {
 
     public transfConvertStar(xPath: XPath, element: Element): XPath[] {
         let output: XPath[] = [];
+        let ancestor: Element = this.getAncestor(element, xPath.getLength() - 1);
         if (xPath.startsWith("//*")) {
-            output.push(new XPath ("//" + element.tagName.toLowerCase() + xPath.substring(3)));
+            output.push(new XPath ("//" + ancestor.tagName.toLowerCase() + xPath.substring(3)));
         }
         return output;
     };
 
     public transfAddId(xPath: XPath, element: Element): XPath[] {
         let output: XPath[] = [];
-        if (element.id && !xPath.headHasAnyPredicates()) {
+        let ancestor: Element = this.getAncestor(element, xPath.getLength() - 1);
+        if (ancestor.id && !xPath.headHasAnyPredicates()) {
             let newXPath: XPath = new XPath(xPath.getValue());
-            newXPath.addPredicateToHead(`[@id='${element.id}']`)
+            newXPath.addPredicateToHead(`[@id='${ancestor.id}']`)
             output.push(newXPath);
         }
         return output;
@@ -93,9 +95,10 @@ export class RobulaPlus {
 
     public transfAddText(xPath: XPath, element: Element): XPath[] {
         let output: XPath[] = [];
-        if (element.textContent && !xPath.headHasPositionPredicate() && !xPath.headHasTextPredicate()) {
+        let ancestor: Element = this.getAncestor(element, xPath.getLength() - 1);
+        if (ancestor.textContent && !xPath.headHasPositionPredicate() && !xPath.headHasTextPredicate()) {
             let newXPath: XPath = new XPath(xPath.getValue());
-            newXPath.addPredicateToHead(`[contains(text(),'${element.textContent}')]`)
+            newXPath.addPredicateToHead(`[contains(text(),'${ancestor.textContent}')]`)
             output.push(newXPath);
         }
         return output;
@@ -103,8 +106,9 @@ export class RobulaPlus {
 
     public transfAddAttribute(xPath: XPath, element: Element): XPath[] {
         let output: XPath[] = [];
+        let ancestor: Element = this.getAncestor(element, xPath.getLength() - 1);
         if (!xPath.headHasAnyPredicates()) {
-            for (let attribute of element.attributes) {
+            for (let attribute of ancestor.attributes) {
                 let newXPath: XPath = new XPath(xPath.getValue());
                 newXPath.addPredicateToHead(`[@${attribute.name}='${attribute.value}']`)
                 output.push(newXPath);
@@ -115,10 +119,11 @@ export class RobulaPlus {
 
     public transfAddAttributeSet(xPath: XPath, element: Element): XPath[] {
         let output: XPath[] = [];
-        if (element.attributes.length > 0 && !xPath.headHasAnyPredicates()) {
-            let predicate: string = `[@${element.attributes[0].name}='${element.attributes[0].value}'`;
-            for (let i: number = 1; i < element.attributes.length; i++) {
-                predicate += ` and @${element.attributes[i].name}='${element.attributes[i].value}'`;
+        let ancestor: Element = this.getAncestor(element, xPath.getLength() - 1);
+        if (ancestor.attributes.length > 0 && !xPath.headHasAnyPredicates()) {
+            let predicate: string = `[@${ancestor.attributes[0].name}='${ancestor.attributes[0].value}'`;
+            for (let i: number = 1; i < ancestor.attributes.length; i++) {
+                predicate += ` and @${ancestor.attributes[i].name}='${ancestor.attributes[i].value}'`;
             }
             predicate += ']';
             let newXPath: XPath = new XPath(xPath.getValue());
@@ -130,17 +135,18 @@ export class RobulaPlus {
 
     public transfAddPosition(xPath: XPath, element: Element): XPath[] {
         let output: XPath[] = [];
+        let ancestor: Element = this.getAncestor(element, xPath.getLength() - 1);
         if (!xPath.headHasPositionPredicate()) {
             let position: number = 0;
             if (xPath.startsWith("//*")) {
-                position = Array.from(element.parentNode!.children).indexOf(element);
+                position = Array.from(ancestor.parentNode!.children).indexOf(ancestor);
             }
             else {
-                for (let child of element.parentNode!.children) {
-                    if (element === child) {
+                for (let child of ancestor.parentNode!.children) {
+                    if (ancestor === child) {
                         break;
                     }
-                    if (element.tagName === child.tagName) {
+                    if (ancestor.tagName === child.tagName) {
                         position++;
                     }
                 }
