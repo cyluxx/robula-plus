@@ -26,6 +26,9 @@ export class RobulaPlus {
     * @returns - A robust xPath locator string, describing the desired element.
     */
     public getRobustXPath(element: Element, document: Document): string {
+        if(!document.body.contains(element)){
+            throw new Error('Document does not contain given element!');
+        }
         let xPathList: XPath[] = [new XPath('//*')];
         while (true) {
             let xPath: XPath = xPathList.shift()!;
