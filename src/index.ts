@@ -13,7 +13,7 @@ export class RobulaPlus {
      * 
      * @param options - (optional) algorithm options.
      */
-    constructor(options?: RobulaPlusOptions){
+    constructor(options?: RobulaPlusOptions) {
 
     }
 
@@ -26,22 +26,29 @@ export class RobulaPlus {
     * @returns - A robust xPath locator string, describing the desired element.
     */
     public getRobustXPath(element: Element, document: Document): string {
-        if(!document.body.contains(element)){
+        if (!document.body.contains(element)) {
             throw new Error('Document does not contain given element!');
         }
         let xPathList: XPath[] = [new XPath('//*')];
         while (true) {
             let xPath: XPath = xPathList.shift()!;
             let temp: XPath[] = [];
-            temp.concat(this.transfConvertStar(xPath, element));
-            temp.concat(this.transfAddId(xPath, element));
-            temp.concat(this.transfAddText(xPath, element));
-            temp.concat(this.transfAddAttribute(xPath, element));
-            temp.concat(this.transfAddAttributeSet(xPath, element));
-            temp.concat(this.transfAddPosition(xPath, element));
-            temp.concat(this.transfAddLevel(xPath, element));
+            temp = temp.concat(this.transfConvertStar(xPath, element));
+            console.log(temp);
+            temp = temp.concat(this.transfAddId(xPath, element));
+            console.log(temp);
+            temp = temp.concat(this.transfAddText(xPath, element));
+            console.log(temp);
+            temp = temp.concat(this.transfAddAttribute(xPath, element));
+            console.log(temp);
+            temp = temp.concat(this.transfAddAttributeSet(xPath, element));
+            console.log(temp);
+            temp = temp.concat(this.transfAddPosition(xPath, element));
+            console.log(temp);
+            temp = temp.concat(this.transfAddLevel(xPath, element));
             for (let x of temp) {
-                if(this.uniquelyLocate(x.getValue(), element, document)){
+                console.log(x.getValue());
+                if (this.uniquelyLocate(x.getValue(), element, document)) {
                     return x.getValue();
                 }
                 xPathList.push(x);
@@ -80,7 +87,7 @@ export class RobulaPlus {
         let output: XPath[] = [];
         let ancestor: Element = this.getAncestor(element, xPath.getLength() - 1);
         if (xPath.startsWith("//*")) {
-            output.push(new XPath ("//" + ancestor.tagName.toLowerCase() + xPath.substring(3)));
+            output.push(new XPath("//" + ancestor.tagName.toLowerCase() + xPath.substring(3)));
         }
         return output;
     };
@@ -171,11 +178,11 @@ export class RobulaPlus {
 
     private getAncestor(element: Element, index: number): Element {
         let output: Element = element;
-        for(let i: number = 0; i < index; i++){
+        for (let i: number = 0; i < index; i++) {
             output = output.parentElement as Element;
         }
         return output;
-    } 
+    }
 
     private getAncestorCount(element: Element): number {
         let count: number = 0;
@@ -189,8 +196,8 @@ export class RobulaPlus {
 
 export class XPath {
     private value: string;
-    
-    constructor(value: string){
+
+    constructor(value: string) {
         this.value = value;
     }
 
@@ -209,23 +216,23 @@ export class XPath {
     public headHasAnyPredicates(): boolean {
         return this.value.split('/')[2].includes('[');
     }
-    
+
     public headHasPositionPredicate(): boolean {
         let splitXPath: string[] = this.value.split('/');
         let regExp: RegExp = new RegExp('[[0-9]]');
         return splitXPath[2].includes('position()') || splitXPath[2].includes('last()') || regExp.test(splitXPath[2]);
     }
-    
+
     public headHasTextPredicate(): boolean {
         return this.value.split('/')[2].includes('text()');
     }
-    
+
     public addPredicateToHead(predicate: string): void {
         let splitXPath: string[] = this.value.split('/');
         splitXPath[2] += predicate;
         this.value = splitXPath.join('/');
     }
-    
+
     public getLength(): number {
         let splitXPath: string[] = this.value.split('/');
         let length: number = 0;
