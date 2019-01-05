@@ -15,7 +15,7 @@ test('transfAddPosistion: Element has no siblings', () => {
     let parentElement: Element = document.createElement('div');
     parentElement.innerHTML = '<span></span>';
     let element: Element = parentElement.firstElementChild!;
-    expect(robulaPlus.transfAddPosition(xPath, element)).toEqual([{value: '//span[0]'}]);
+    expect(robulaPlus.transfAddPosition(xPath, element)).toEqual([{value: '//span[1]'}]);
 });
 
 test('transfAddPosistion: Element has only siblings with different tagNames. Element is at last position', () => {
@@ -23,7 +23,7 @@ test('transfAddPosistion: Element has only siblings with different tagNames. Ele
     let parentElement: Element = document.createElement('div');
     parentElement.innerHTML = '<a></a><span></span>';
     let element: Element = parentElement.lastElementChild!;
-    expect(robulaPlus.transfAddPosition(xPath, element)).toEqual([{value: '//span[0]'}]);
+    expect(robulaPlus.transfAddPosition(xPath, element)).toEqual([{value: '//span[1]'}]);
 });
 
 test('transfAddPosistion: Element has only siblings with different tagNames. Element is at last position. xPath contains *', () => {
@@ -31,7 +31,7 @@ test('transfAddPosistion: Element has only siblings with different tagNames. Ele
     let parentElement: Element = document.createElement('div');
     parentElement.innerHTML = '<a></a><span></span>';
     let element: Element = parentElement.lastElementChild!;
-    expect(robulaPlus.transfAddPosition(xPath, element)).toEqual([{value: '//*[1]'}]);
+    expect(robulaPlus.transfAddPosition(xPath, element)).toEqual([{value: '//*[2]'}]);
 });
 
 test('transfAddPosistion: Element is at position 0', () => {
@@ -39,7 +39,7 @@ test('transfAddPosistion: Element is at position 0', () => {
     let parentElement: Element = document.createElement('div');
     parentElement.innerHTML = '<span></span><span></span>';
     let element: Element = parentElement.firstElementChild!;
-    expect(robulaPlus.transfAddPosition(xPath, element)).toEqual([{value: '//span[0]'}]);
+    expect(robulaPlus.transfAddPosition(xPath, element)).toEqual([{value: '//span[1]'}]);
 });
 
 test('transfAddPosistion: Element is at last position', () => {
@@ -47,5 +47,13 @@ test('transfAddPosistion: Element is at last position', () => {
     let parentElement: Element = document.createElement('div');
     parentElement.innerHTML = '<span></span><span></span>';
     let element: Element = parentElement.lastElementChild!;
-    expect(robulaPlus.transfAddPosition(xPath, element)).toEqual([{value: '//span[1]'}]);
+    expect(robulaPlus.transfAddPosition(xPath, element)).toEqual([{value: '//span[2]'}]);
+});
+
+test('transfAddPosistion: Element is at third position', () => {
+    let xPath: XPath = new XPath('//span');
+    let parentElement: Element = document.createElement('div');
+    parentElement.innerHTML = '<span></span><span></span><span></span><span></span>';
+    let element: Element = parentElement.childNodes.item(2) as Element;
+    expect(robulaPlus.transfAddPosition(xPath, element)).toEqual([{value: '//span[3]'}]);
 });

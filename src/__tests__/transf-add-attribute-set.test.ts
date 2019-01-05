@@ -37,6 +37,17 @@ test('transfAddAttributeSet: Element has 2 Attributes and appendix', () => {
     expect(robulaPlus.transfAddAttributeSet(xPath, element)).toEqual([{value: "//div[@class='foo' and @id='bar']/span"}]);
 });
 
+test('transfAddAttributeSet: Element has 3 Attributes and appendix', () => {
+    let xPath: XPath = new XPath('//div/span');
+    let ancestor: Element = document.createElement('div');
+    let element: Element = document.createElement('span');
+    ancestor.setAttribute('class', 'foo');
+    ancestor.setAttribute('id', 'bar');
+    ancestor.setAttribute('title', 'title');
+    ancestor.appendChild(element);
+    expect(robulaPlus.transfAddAttributeSet(xPath, element)).toEqual([{value: "//div[@class='foo' and @id='bar' and @title='title']/span"}]);
+});
+
 test('transfAddAttributeSet: Element has no Attributes', () => {
     let xPath: XPath = new XPath('//div');
     let element: Element = document.createElement('div');

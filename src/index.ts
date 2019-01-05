@@ -30,30 +30,25 @@ export class RobulaPlus {
             throw new Error('Document does not contain given element!');
         }
         let xPathList: XPath[] = [new XPath('//*')];
-        while (true) {
+        while (xPathList.length > 0) {
             let xPath: XPath = xPathList.shift()!;
             let temp: XPath[] = [];
             temp = temp.concat(this.transfConvertStar(xPath, element));
-            console.log(temp);
             temp = temp.concat(this.transfAddId(xPath, element));
-            console.log(temp);
             temp = temp.concat(this.transfAddText(xPath, element));
-            console.log(temp);
             temp = temp.concat(this.transfAddAttribute(xPath, element));
-            console.log(temp);
             temp = temp.concat(this.transfAddAttributeSet(xPath, element));
-            console.log(temp);
             temp = temp.concat(this.transfAddPosition(xPath, element));
-            console.log(temp);
             temp = temp.concat(this.transfAddLevel(xPath, element));
+            temp = [...new Set(temp)]; //removes duplicates
             for (let x of temp) {
-                console.log(x.getValue());
                 if (this.uniquelyLocate(x.getValue(), element, document)) {
                     return x.getValue();
                 }
                 xPathList.push(x);
             }
         }
+        throw new Error('Internal Error: xPathList.shift returns undefined');
     }
 
     /** 
@@ -78,9 +73,8 @@ export class RobulaPlus {
     * @returns - True, if the xPath describes only the desired element.
     */
     public uniquelyLocate(xPath: string, element: Element, document: Document): boolean {
-        let iterator: XPathResult = document.evaluate(xPath, document, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null);
-        let thisNode: Element = iterator.iterateNext() as Element;
-        return thisNode === element && !iterator.iterateNext();
+        let nodesSnapshot: XPathResult = document.evaluate(xPath, document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+        return nodesSnapshot.snapshotLength === 1 && nodesSnapshot.snapshotItem(0) === element;
     }
 
     public transfConvertStar(xPath: XPath, element: Element): XPath[] {
@@ -147,9 +141,9 @@ export class RobulaPlus {
         let output: XPath[] = [];
         let ancestor: Element = this.getAncestor(element, xPath.getLength() - 1);
         if (!xPath.headHasPositionPredicate()) {
-            let position: number = 0;
+            let position: number = 1;
             if (xPath.startsWith("//*")) {
-                position = Array.from(ancestor.parentNode!.children).indexOf(ancestor);
+                position = Array.from(ancestor.parentNode!.children).indexOf(ancestor) + 1;
             }
             else {
                 for (let child of ancestor.parentNode!.children) {
@@ -170,7 +164,7 @@ export class RobulaPlus {
 
     public transfAddLevel(xPath: XPath, element: Element): XPath[] {
         let output: XPath[] = [];
-        if (xPath.getLength() < this.getAncestorCount(element) + 1) {
+        if (xPath.getLength() - 1 < this.getAncestorCount(element)) {
             output.push(new XPath('//*' + xPath.substring(1)));
         }
         return output;
