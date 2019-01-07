@@ -42,3 +42,26 @@ test('transfAddAttribute: Element has no Attributes', () => {
     let element: Element = document.createElement('div');
     expect(robulaPlus.transfAddAttribute(xPath, element)).toEqual([]);
 });
+
+test('transfAddAttribute: Element has one default black list attribute', () => {
+    let xPath: XPath = new XPath('//div');
+    let element: Element = document.createElement('div');
+    element.setAttribute('href', 'foo');
+    expect(robulaPlus.transfAddAttribute(xPath, element)).toEqual([]);
+});
+
+test('transfAddAttribute: Element has two priorization list attributes', () => {
+    let xPath: XPath = new XPath('//div');
+    let element: Element = document.createElement('div');
+    element.setAttribute('class', 'foo');
+    element.setAttribute('name', 'bar');
+    expect(robulaPlus.transfAddAttribute(xPath, element)).toEqual([{value: "//div[@name='bar']"}, {value: "//div[@class='foo']"}]);
+});
+
+test('transfAddAttribute: Element has one priorization list attribute and one normal attribute', () => {
+    let xPath: XPath = new XPath('//div');
+    let element: Element = document.createElement('div');
+    element.setAttribute('lang', 'foo');
+    element.setAttribute('name', 'bar');
+    expect(robulaPlus.transfAddAttribute(xPath, element)).toEqual([{value: "//div[@name='bar']"}, {value: "//div[@lang='foo']"}]);
+});

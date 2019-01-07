@@ -1,20 +1,24 @@
 /**
-* Maurizio Leotta, Andrea Stocco, Filippo Ricca, Paolo Tonella. ROBULA+:
-* An Algorithm for Generating Robust XPath Locators for Web Testing. Journal
-* of Software: Evolution and Process (JSEP), Volume 28, Issue 3, pp.177–204.
-* John Wiley & Sons, 2016. 
-* https://doi.org/10.1002/smr.1771
-*/
-
+    * Main class, containing the Algorithm.
+    * 
+    * @remarks For more information on how the algorithm works, please refer to: 
+    * Maurizio Leotta, Andrea Stocco, Filippo Ricca, Paolo Tonella. ROBULA+:
+    * An Algorithm for Generating Robust XPath Locators for Web Testing. Journal
+    * of Software: Evolution and Process (JSEP), Volume 28, Issue 3, pp.177–204.
+    * John Wiley & Sons, 2016. 
+    * https://doi.org/10.1002/smr.1771
+    * 
+    * @param options - (optional) algorithm options.
+    */
 export class RobulaPlus {
+    private attributePriorizationList: string[] = ["name", "class", "title", "alt", "value"];
+    private attributeBlackList: string[] = ["href", "src", "onclick", "onload", "tabindex", "width", "height", "style", "size", "maxlength"];
 
-    /**
-     * Main class, containing the Algorithm.
-     * 
-     * @param options - (optional) algorithm options.
-     */
     constructor(options?: RobulaPlusOptions) {
-
+        if (options) {
+            this.attributePriorizationList = options.attributePriorizationList;
+            this.attributeBlackList = options.attributeBlackList;
+        }
     }
 
     /** 
@@ -112,10 +116,24 @@ export class RobulaPlus {
         let output: XPath[] = [];
         let ancestor: Element = this.getAncestor(element, xPath.getLength() - 1);
         if (!xPath.headHasAnyPredicates()) {
+            //add priority attributes to output
+            for (let priorityAttribute of this.attributePriorizationList) {
+                for (let attribute of ancestor.attributes) {
+                    if (attribute.name === priorityAttribute) {
+                        let newXPath: XPath = new XPath(xPath.getValue());
+                        newXPath.addPredicateToHead(`[@${attribute.name}='${attribute.value}']`);
+                        output.push(newXPath);
+                        break;
+                    }
+                }
+            }
+            //append all other non-blacklist attributes to output
             for (let attribute of ancestor.attributes) {
-                let newXPath: XPath = new XPath(xPath.getValue());
-                newXPath.addPredicateToHead(`[@${attribute.name}='${attribute.value}']`)
-                output.push(newXPath);
+                if (!this.attributeBlackList.includes(attribute.name) && !this.attributePriorizationList.includes(attribute.name)) {
+                    let newXPath: XPath = new XPath(xPath.getValue());
+                    newXPath.addPredicateToHead(`[@${attribute.name}='${attribute.value}']`);
+                    output.push(newXPath);
+                }
             }
         }
         return output;
@@ -124,7 +142,22 @@ export class RobulaPlus {
     public transfAddAttributeSet(xPath: XPath, element: Element): XPath[] {
         let output: XPath[] = [];
         let ancestor: Element = this.getAncestor(element, xPath.getLength() - 1);
-        if (ancestor.attributes.length > 0 && !xPath.headHasAnyPredicates()) {
+        if (!xPath.headHasAnyPredicates()) {
+            //add id to attributePriorizationList
+            this.attributePriorizationList.unshift('id');
+            let ancestorAttributePowerSets: Attr[][] = this.generatePowerSet([...ancestor.attributes]);
+
+            //remove sets < 2 and sets containing any black list attribute
+            for(let powerSet of ancestorAttributePowerSets){
+                if(powerSet.length >= 2){
+                    for(let attribute of powerSet){
+                        if(this.attributeBlackList.includes(attribute.name)){
+                            break;
+                        }
+                    }
+                }
+            }
+
             let predicate: string = `[@${ancestor.attributes[0].name}='${ancestor.attributes[0].value}'`;
             for (let i: number = 1; i < ancestor.attributes.length; i++) {
                 predicate += ` and @${ancestor.attributes[i].name}='${ancestor.attributes[i].value}'`;
@@ -133,6 +166,9 @@ export class RobulaPlus {
             let newXPath: XPath = new XPath(xPath.getValue());
             newXPath.addPredicateToHead(predicate);
             output.push(newXPath);
+
+            //remove id from attributePriorizationList
+            this.attributePriorizationList.shift();
         }
         return output;
     }
@@ -168,6 +204,22 @@ export class RobulaPlus {
             output.push(new XPath('//*' + xPath.substring(1)));
         }
         return output;
+    }
+
+    private generatePowerSet(input: Attr[]): Attr[][] {
+        console.log(input);
+        let sets: Attr[][] = [[]];
+        for(let element of input){
+            for(let set of sets){
+                let newSet: Attr[] = [...set];
+                newSet.push(element);
+                sets.push(newSet);
+            }
+            sets.push(new Array(element));
+        }
+        sets.push([]);
+        console.log(sets);
+        return sets;
     }
 
     private getAncestor(element: Element, index: number): Element {
@@ -240,5 +292,11 @@ export class XPath {
 }
 
 export class RobulaPlusOptions {
+    /**
+     * @attribute - attributePriorizationList: A prioritized list of HTML attributes, which are considered in the given order.
+     * @attribute - attributeBlackList: Contains HTML attributes, which are classified as too fragile and are ignored by the algorithm.
+     */
 
+    attributePriorizationList: string[] = ["name", "class", "title", "alt", "value"];
+    attributeBlackList: string[] = ["href", "src", "onclick", "onload", "tabindex", "width", "height", "style", "size", "maxlength"];
 }
