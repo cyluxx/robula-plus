@@ -47,9 +47,9 @@ test('transfAddAttributeSet: Element has 3 Attributes and appendix', () => {
     ancestor.appendChild(element);
     expect(robulaPlus.transfAddAttributeSet(xPath, element)).toEqual([
         {"value": "//div[@id='bar' and @class='foo']/span"},
-        {"value": "//div[@title='title' and @id='bar']/span"},
-        {"value": "//div[@title='title' and @class='foo']/span"},
-        {"value": "//div[@title='title' and @id='bar' and @class='foo']/span"}
+        {"value": "//div[@id='bar' and @title='title']/span"},
+        {"value": "//div[@class='foo' and @title='title']/span"},
+        {"value": "//div[@id='bar' and @class='foo' and @title='title']/span"}
     ]);
 });
 
@@ -63,17 +63,17 @@ test('transfAddAttributeSet: Element has 2 priority, 2 blacklist and 2 normal at
     element.setAttribute('onclick', 'foo');
     element.setAttribute('class', 'foo');
     expect(robulaPlus.transfAddAttributeSet(xPath, element)).toEqual([
-        {"value": "//div[@class='foo' and @id='foo']"},
+        {"value": "//div[@id='foo' and @class='foo']"},
         {"value": "//div[@id='foo' and @for='foo']"},
-        {"value": "//div[@onchange='foo' and @id='foo']"},
+        {"value": "//div[@id='foo' and @onchange='foo']"},
         {"value": "//div[@class='foo' and @for='foo']"},
         {"value": "//div[@class='foo' and @onchange='foo']"},
         {"value": "//div[@onchange='foo' and @for='foo']"},
-        {"value": "//div[@class='foo' and @id='foo' and @for='foo']"},
-        {"value": "//div[@class='foo' and @onchange='foo' and @id='foo']"},
-        {"value": "//div[@onchange='foo' and @id='foo' and @for='foo']"},
+        {"value": "//div[@id='foo' and @class='foo' and @for='foo']"},
+        {"value": "//div[@id='foo' and @class='foo' and @onchange='foo']"},
+        {"value": "//div[@id='foo' and @onchange='foo' and @for='foo']"},
         {"value": "//div[@class='foo' and @onchange='foo' and @for='foo']"},
-        {"value": "//div[@class='foo' and @onchange='foo' and @id='foo' and @for='foo']"}
+        {"value": "//div[@id='foo' and @class='foo' and @onchange='foo' and @for='foo']"}
     ]);
 });
 

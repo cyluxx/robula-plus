@@ -156,63 +156,26 @@ export class RobulaPlus {
             //remove sets with cardinality < 2
             attributePowerSet = attributePowerSet.filter(attributeSet => attributeSet.length >= 2);
 
-            //sort by attribute priority
-            let temp: Attr[][];
-            for (let priorityAttribute of this.attributePriorizationList) {
-                temp = [];
-                for (let i: number = 0; i < attributePowerSet.length;) {
-                    let containsConcretePriorityAttribute: boolean = false;
-                    for (let attribute of attributePowerSet[i]) {
-                        if (attribute.name === priorityAttribute) {
-                            containsConcretePriorityAttribute = true;
-                            break;
-                        }
-                    }
-                    if (containsConcretePriorityAttribute) {
-                        temp.push(attributePowerSet[i]);
-                        attributePowerSet.splice(i, 1);
-                    }
-                    else {
-                        i++;
-                    }
-                }
-                attributePowerSet = attributePowerSet.concat(temp);
+            //sort elements inside each powerset
+            for (let attributeSet of attributePowerSet) {
+                attributeSet.sort(this.elementCompareFunction.bind(this));
             }
 
-            //append non priority attributes to end
-            temp = [];
-            for (let i: number = 0; i < attributePowerSet.length;) {
-                let containsAnyPriorityAttribute: boolean = false;
-                for (let attribute of attributePowerSet[i]) {
-                    if (this.attributePriorizationList.includes(attribute.name)) {
-                        containsAnyPriorityAttribute = true;
-                        break;
+            //sort attributePowerSet
+            attributePowerSet.sort((set1: Attr[], set2: Attr[]) => {
+                if (set1.length < set2.length) {
+                    return -1;
+                }
+                if (set1.length > set2.length) {
+                    return 1;
+                }
+                for (let i: number = 0; i < set1.length; i++) {
+                    if (set1[i] !== set2[i]) {
+                        return this.elementCompareFunction(set1[i], set2[i]);
                     }
                 }
-                if (!containsAnyPriorityAttribute) {
-                    temp.push(attributePowerSet[i]);
-                    attributePowerSet.splice(i, 1);
-                }
-                else {
-                    i++;
-                }
-            }
-            attributePowerSet = attributePowerSet.concat(temp);
-
-            //sort by cardinality
-            for (let cardinality: number = 2; cardinality <= attributes.length; cardinality++) {
-                temp = [];
-                for (let i: number = 0; i < attributePowerSet.length;) {
-                    if (attributePowerSet[i].length === cardinality) {
-                        temp.push(attributePowerSet[i]);
-                        attributePowerSet.splice(i, 1);
-                    }
-                    else {
-                        i++;
-                    }
-                }
-                attributePowerSet = attributePowerSet.concat(temp);
-            }
+                return 0;
+            });
 
             //remove id from attributePriorizationList
             this.attributePriorizationList.shift();
@@ -273,6 +236,18 @@ export class RobulaPlus {
             [[]]
         );
     }
+
+    private elementCompareFunction(attr1: Attr, attr2: Attr): number {
+        for (let element of this.attributePriorizationList) {
+            if (element === attr1.name) {
+                return -1;
+            }
+            if (element === attr2.name) {
+                return 1;
+            }
+        }
+        return 0;
+    };
 
     private getAncestor(element: Element, index: number): Element {
         let output: Element = element;

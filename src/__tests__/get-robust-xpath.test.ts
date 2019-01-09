@@ -47,7 +47,7 @@ test('getRobustXPath: Element is unique by attribute set', () => {
     let doc: Document = document.implementation.createHTMLDocument();
     doc.documentElement.innerHTML = `<head></head><body><h1 class="false" title="foo"></h1><h1 class="false" title="bar"></h1><h1 class="true" title="foo"></h1><h1 class="true" title="bar"></h1></body>`;
     let element: Element = robulaPlus.getElementByXPath('/html/body/h1[3]', doc);
-    expect(robulaPlus.getRobustXPath(element, doc)).toEqual("//*[@title='foo' and @class='true']");
+    expect(robulaPlus.getRobustXPath(element, doc)).toEqual("//*[@class='true' and @title='foo']");
 });
 
 test('getRobustXPath: Element is unique by position', () => {
