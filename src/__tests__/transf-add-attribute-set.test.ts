@@ -24,7 +24,7 @@ test('transfAddAttributeSet: Element has 1 Attribute and appendix', () => {
     let element: Element = document.createElement('span');
     ancestor.setAttribute('class', 'foo');
     ancestor.appendChild(element);
-    expect(robulaPlus.transfAddAttributeSet(xPath, element)).toEqual([{value: "//div[@class='foo']/span"}]);
+    expect(robulaPlus.transfAddAttributeSet(xPath, element)).toEqual([]);
 });
 
 test('transfAddAttributeSet: Element has 2 Attributes and appendix', () => {
@@ -34,7 +34,7 @@ test('transfAddAttributeSet: Element has 2 Attributes and appendix', () => {
     ancestor.setAttribute('class', 'foo');
     ancestor.setAttribute('id', 'bar');
     ancestor.appendChild(element);
-    expect(robulaPlus.transfAddAttributeSet(xPath, element)).toEqual([{value: "//div[@class='foo' and @id='bar']/span"}]);
+    expect(robulaPlus.transfAddAttributeSet(xPath, element)).toEqual([{value: "//div[@id='bar' and @class='foo']/span"}]);
 });
 
 test('transfAddAttributeSet: Element has 3 Attributes and appendix', () => {
@@ -45,7 +45,36 @@ test('transfAddAttributeSet: Element has 3 Attributes and appendix', () => {
     ancestor.setAttribute('id', 'bar');
     ancestor.setAttribute('title', 'title');
     ancestor.appendChild(element);
-    expect(robulaPlus.transfAddAttributeSet(xPath, element)).toEqual([{value: "//div[@class='foo' and @id='bar' and @title='title']/span"}]);
+    expect(robulaPlus.transfAddAttributeSet(xPath, element)).toEqual([
+        {"value": "//div[@id='bar' and @class='foo']/span"},
+        {"value": "//div[@title='title' and @id='bar']/span"},
+        {"value": "//div[@title='title' and @class='foo']/span"},
+        {"value": "//div[@title='title' and @id='bar' and @class='foo']/span"}
+    ]);
+});
+
+test('transfAddAttributeSet: Element has 2 priority, 2 blacklist and 2 normal attributes', () => {
+    let xPath: XPath = new XPath('//div');
+    let element: Element = document.createElement('div');
+    element.setAttribute('for', 'foo');
+    element.setAttribute('style', 'foo');
+    element.setAttribute('id', 'foo');
+    element.setAttribute('onchange', 'foo');
+    element.setAttribute('onclick', 'foo');
+    element.setAttribute('class', 'foo');
+    expect(robulaPlus.transfAddAttributeSet(xPath, element)).toEqual([
+        {"value": "//div[@class='foo' and @id='foo']"},
+        {"value": "//div[@id='foo' and @for='foo']"},
+        {"value": "//div[@onchange='foo' and @id='foo']"},
+        {"value": "//div[@class='foo' and @for='foo']"},
+        {"value": "//div[@class='foo' and @onchange='foo']"},
+        {"value": "//div[@onchange='foo' and @for='foo']"},
+        {"value": "//div[@class='foo' and @id='foo' and @for='foo']"},
+        {"value": "//div[@class='foo' and @onchange='foo' and @id='foo']"},
+        {"value": "//div[@onchange='foo' and @id='foo' and @for='foo']"},
+        {"value": "//div[@class='foo' and @onchange='foo' and @for='foo']"},
+        {"value": "//div[@class='foo' and @onchange='foo' and @id='foo' and @for='foo']"}
+    ]);
 });
 
 test('transfAddAttributeSet: Element has no Attributes', () => {

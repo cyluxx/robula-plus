@@ -145,30 +145,89 @@ export class RobulaPlus {
         if (!xPath.headHasAnyPredicates()) {
             //add id to attributePriorizationList
             this.attributePriorizationList.unshift('id');
-            let ancestorAttributePowerSets: Attr[][] = this.generatePowerSet([...ancestor.attributes]);
+            let attributes: Attr[] = [...ancestor.attributes];
 
-            //remove sets < 2 and sets containing any black list attribute
-            for(let powerSet of ancestorAttributePowerSets){
-                if(powerSet.length >= 2){
-                    for(let attribute of powerSet){
-                        if(this.attributeBlackList.includes(attribute.name)){
+            //remove black list attributes
+            attributes = attributes.filter(attribute => !this.attributeBlackList.includes(attribute.name));
+
+            //generate power set
+            let attributePowerSet: Attr[][] = this.generatePowerSet(attributes);
+
+            //remove sets with cardinality < 2
+            attributePowerSet = attributePowerSet.filter(attributeSet => attributeSet.length >= 2);
+
+            //sort by attribute priority
+            let temp: Attr[][];
+            for (let priorityAttribute of this.attributePriorizationList) {
+                temp = [];
+                for (let i: number = 0; i < attributePowerSet.length;) {
+                    let containsConcretePriorityAttribute: boolean = false;
+                    for (let attribute of attributePowerSet[i]) {
+                        if (attribute.name === priorityAttribute) {
+                            containsConcretePriorityAttribute = true;
                             break;
                         }
                     }
+                    if (containsConcretePriorityAttribute) {
+                        temp.push(attributePowerSet[i]);
+                        attributePowerSet.splice(i, 1);
+                    }
+                    else {
+                        i++;
+                    }
                 }
+                attributePowerSet = attributePowerSet.concat(temp);
             }
 
-            let predicate: string = `[@${ancestor.attributes[0].name}='${ancestor.attributes[0].value}'`;
-            for (let i: number = 1; i < ancestor.attributes.length; i++) {
-                predicate += ` and @${ancestor.attributes[i].name}='${ancestor.attributes[i].value}'`;
+            //append non priority attributes to end
+            temp = [];
+            for (let i: number = 0; i < attributePowerSet.length;) {
+                let containsAnyPriorityAttribute: boolean = false;
+                for (let attribute of attributePowerSet[i]) {
+                    if (this.attributePriorizationList.includes(attribute.name)) {
+                        containsAnyPriorityAttribute = true;
+                        break;
+                    }
+                }
+                if (!containsAnyPriorityAttribute) {
+                    temp.push(attributePowerSet[i]);
+                    attributePowerSet.splice(i, 1);
+                }
+                else {
+                    i++;
+                }
             }
-            predicate += ']';
-            let newXPath: XPath = new XPath(xPath.getValue());
-            newXPath.addPredicateToHead(predicate);
-            output.push(newXPath);
+            attributePowerSet = attributePowerSet.concat(temp);
+
+            //sort by cardinality
+            for (let cardinality: number = 2; cardinality <= attributes.length; cardinality++) {
+                temp = [];
+                for (let i: number = 0; i < attributePowerSet.length;) {
+                    if (attributePowerSet[i].length === cardinality) {
+                        temp.push(attributePowerSet[i]);
+                        attributePowerSet.splice(i, 1);
+                    }
+                    else {
+                        i++;
+                    }
+                }
+                attributePowerSet = attributePowerSet.concat(temp);
+            }
 
             //remove id from attributePriorizationList
             this.attributePriorizationList.shift();
+
+            //convert to predicate
+            for (let attributeSet of attributePowerSet) {
+                let predicate: string = `[@${attributeSet[0].name}='${attributeSet[0].value}'`;
+                for (let i: number = 1; i < attributeSet.length; i++) {
+                    predicate += ` and @${attributeSet[i].name}='${attributeSet[i].value}'`;
+                }
+                predicate += ']';
+                let newXPath: XPath = new XPath(xPath.getValue());
+                newXPath.addPredicateToHead(predicate);
+                output.push(newXPath);
+            }
         }
         return output;
     }
@@ -207,19 +266,12 @@ export class RobulaPlus {
     }
 
     private generatePowerSet(input: Attr[]): Attr[][] {
-        console.log(input);
-        let sets: Attr[][] = [[]];
-        for(let element of input){
-            for(let set of sets){
-                let newSet: Attr[] = [...set];
-                newSet.push(element);
-                sets.push(newSet);
-            }
-            sets.push(new Array(element));
-        }
-        sets.push([]);
-        console.log(sets);
-        return sets;
+        return input.reduce(
+            (subsets: Attr[][], value: Attr) => subsets.concat(
+                subsets.map((set: Attr[]) => [value, ...set])
+            ),
+            [[]]
+        );
     }
 
     private getAncestor(element: Element, index: number): Element {
