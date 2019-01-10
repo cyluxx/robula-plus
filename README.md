@@ -1,34 +1,36 @@
 # Robula+
-Robula+ is an algorithm to generate robust XPath-based locators, that are likely to work correctly with new releases of a web application. Robula+ reduces the locators' fragility on average by 90% w.r.t. absolute locators and by 63% w.r.t. Selenium IDE locators [1].
+Robula+ is an algorithm to generate robust XPath-based locators, that are likely to work correctly with new releases of a web application. Robula+ reduces the locators' fragility on average by 90% w.r.t. absolute locators and by 63% w.r.t. Selenium IDE locators [[1]](#about).
 
 ## Usage
 ### getRobustXPath(element, document):
 Returns an optimized robust XPath locator string.
+
 Parameter | Type | Description
-- | - | -
+--------- | ---- | -----------
 element | Element | The desired element.
 document | Document | The document to analyse, that contains the desired element.
-*Returns:* A robust xPath locator string, describing the desired element.
 
----
+*Returns:* A robust xPath locator string, describing the desired element.
 
 ### getElementByXPath(xPath, document):
 Returns an element in the given document located by the given xPath locator.
+
 Parameter | Type | Description
-- | - | -
+--------- | ---- | -----------
 xPath | string | A xPath string, describing the desired element.
 document | Document | The document to analyse, that contains the desired element.
-*Returns:* The first maching Element located.
 
----
+*Returns:* The first maching Element located.
 
 ### uniquelyLocate(xPath, element, document):
 Returns, wheater an xPath describes only the given element.
+
 Parameter | Type | Description
-- | - | -
+--------- | ---- | -----------
 xPath | string | A xPath string, describing the desired element.
 element | Element | The desired element.
 document | Document | The document to analyse, that contains the desired element.
+
 *Returns:* True, if the xPath describes only the desired element.
 
 ## Example
