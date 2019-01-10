@@ -22,7 +22,7 @@ export class RobulaPlus {
     }
 
     /** 
-    * Returns a optimized robust XPath locator string.
+    * Returns an optimized robust XPath locator string.
     * 
     * @param element - The desired element.
     * @param document - The document to analyse, that contains the desired element.
