@@ -5,36 +5,32 @@ Robula+ is an algorithm to generate robust XPath-based locators, that are likely
 [![Codecov Coverage](https://img.shields.io/codecov/c/github/cyluxx/robula-plus/master.svg)](https://codecov.io/gh/cyluxx/robula-plus/)
 
 ## Usage
+The code mainly contains of the three following Methods:
+
 ### getRobustXPath(element, document):
-Returns an optimized robust XPath locator string.
+Returns an optimized robust XPath locator string, describing a desired element.
 
 Parameter | Type | Description
 --------- | ---- | -----------
 element | Element | The desired element.
 document | Document | The document to analyse, that contains the desired element.
-
-*Returns:* A robust xPath locator string, describing the desired element.
 
 ### getElementByXPath(xPath, document):
-Returns an element in the given document located by the given xPath locator.
+Returns the first element in the given document located by the given xPath locator.
 
 Parameter | Type | Description
 --------- | ---- | -----------
 xPath | string | A xPath string, describing the desired element.
 document | Document | The document to analyse, that contains the desired element.
 
-*Returns:* The first maching Element located.
-
 ### uniquelyLocate(xPath, element, document):
-Returns, wheater an xPath describes only the given element.
+Returns _true_, if the xPath describes only the desired element.
 
 Parameter | Type | Description
 --------- | ---- | -----------
 xPath | string | A xPath string, describing the desired element.
 element | Element | The desired element.
 document | Document | The document to analyse, that contains the desired element.
-
-*Returns:* True, if the xPath describes only the desired element.
 
 ## Example
 Get a robust XPath from an absolute XPath:
@@ -46,20 +42,24 @@ let element = robulaPlus.getElementByXPath('/html/body/div/span/a', document);
 robulaPlus.getRobustXPath(element, document);
 ```
 
-## Contributing
-A current version of Node.js and npm is recommended. To clone this repository, type:
+## Installation
+__Note:__ The License of this code needs some clarification, so until then there will be no public install package available. If you want to use the code, you have to clone and build it manually, as described in the steps below:
+
+1. Download a current version of [Node.js](https://nodejs.org). 
+2. To clone this repository, type:
 ```
 git clone https://github.com/cyluxx/robula-plus.git
 ```
-Navigate to the directory, and install dependencies:
+3. Navigate to the directory, and install dependencies:
 ```
 cd robula-plus
 npm install
 ```
-Run tests with the following command:
+4. To build the code, run:
 ```
-npm test
+npm run build
 ```
+You now should have a _lib_ folder, that you can include in your private JavaScript / TypeScript project.
 
 ## About
 Authors: [Maurizio Leotta](https://www.disi.unige.it/person/LeottaM/), [Andrea Stocco](https://www.disi.unige.it/person/StoccoA/), [Filippo Ricca](https://www.disi.unige.it/person/RiccaF/) and [Paolo Tonella](https://www.inf.usi.ch/faculty/tonella/#/).
