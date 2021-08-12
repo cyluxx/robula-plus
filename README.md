@@ -20,7 +20,7 @@ Returns the first element in the given document located by the given xPath locat
 
 Parameter | Type | Description
 --------- | ---- | -----------
-xPath | string | A xPath string, describing the desired element.
+xPath | string | An xPath string, describing the desired element.
 document | Document | The document to analyse, that contains the desired element.
 
 ### uniquelyLocate(xPath, element, document):
@@ -28,7 +28,7 @@ Returns _true_, if the xPath describes only the desired element.
 
 Parameter | Type | Description
 --------- | ---- | -----------
-xPath | string | A xPath string, describing the desired element.
+xPath | string | An xPath string, describing the desired element.
 element | Element | The desired element.
 document | Document | The document to analyse, that contains the desired element.
 
